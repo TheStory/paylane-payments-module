@@ -1,5 +1,0 @@
-# API #
-
-## ViewHelpers ##
-
-Some text..

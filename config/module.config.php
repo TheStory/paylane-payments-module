@@ -15,6 +15,7 @@ return array(
             'payments.processor' => __NAMESPACE__.'\Service\Payments',
             'payments.reporter' => __NAMESPACE__.'\Service\Reporter',
             'payments.cards' => __NAMESPACE__.'\Service\UserCard',
+            'payments.taxes' => __NAMESPACE__.'\Service\Taxes',
             'repo.payments' => 'Payments\Repository\Payments',
             'repo.user_card' => 'Payments\Repository\UserCard',
             'entity.user_card' => 'Payments\Entity\UserCard',
