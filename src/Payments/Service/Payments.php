@@ -182,7 +182,7 @@ class Payments extends AbstractService //implements PaymentsInterface
 	            $aRes = $this->resaleByAuthorization($aParams);
 	        }
 	        catch (\Exception $e) {
-	            throw new \Exception($e->getMessage());
+	            throw new \Exception($e->getMessage(), $e->getCode());
 	        }
 	    } else {
 	        try {
@@ -190,7 +190,7 @@ class Payments extends AbstractService //implements PaymentsInterface
 	            $aRes = $this->resaleBySale($aParams);
 	        }
 	        catch (\Exception $e) {
-	            throw new \Exception($e->getMessage());
+	            throw new \Exception($e->getMessage(), $e->getCode());
 	        }
 	    }
 	    
@@ -253,9 +253,8 @@ class Payments extends AbstractService //implements PaymentsInterface
 		} else {
 		    $iErrorNumber = $aStatus['error']['error_number'];
 		    $sErrorDescription = $aStatus['error']['error_description'];
-		    
-		    throw new \Exception('Error number: ' . $iErrorNumber. ', Error description: ' . $sErrorDescription);
-		    return false;
+
+		    throw new \Exception('Error number: ' . $iErrorNumber. ', Error description: ' . $sErrorDescription, $iErrorNumber);
 		}
 	}
 	
@@ -294,7 +293,7 @@ class Payments extends AbstractService //implements PaymentsInterface
 	        $iErrorNumber = $aStatus['error']['error_number'];
 	        $sErrorDescription = $aStatus['error']['error_description'];
 	
-	        throw new \Exception('Error number: ' . $iErrorNumber. ', Error description: ' . $sErrorDescription);
+	        throw new \Exception('Error number: ' . $iErrorNumber. ', Error description: ' . $sErrorDescription, $iErrorNumber);
 	        return false;
 	    }
 	}	
