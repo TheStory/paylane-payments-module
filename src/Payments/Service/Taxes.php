@@ -37,7 +37,9 @@ class Taxes extends AbstractService
 
             $adapter = new Client\Adapter\Curl();
             $adapter->setCurlOption(CURLOPT_SSL_VERIFYHOST, false)
-                ->setCurlOption(CURLOPT_SSL_VERIFYPEER, false);
+                ->setCurlOption(CURLOPT_SSL_VERIFYPEER, false)
+                ->setCurlOption(CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1)
+            ;
 
             $client = new Client();
             $client->setUri('https://euvatrates.com/rates.json')
