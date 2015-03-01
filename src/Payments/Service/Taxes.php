@@ -35,15 +35,12 @@ class Taxes extends AbstractService
 
             // API request for all countries data
 
-            $adapter = new Client\Adapter\Curl();
-            $adapter->setCurlOption(CURLOPT_SSL_VERIFYHOST, false)
-                ->setCurlOption(CURLOPT_SSL_VERIFYPEER, false)
-                ->setCurlOption(CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1)
-            ;
-
             $client = new Client();
             $client->setUri('https://euvatrates.com/rates.json')
-                ->setAdapter($adapter)
+                ->setOptions([
+                    'ssltransport' => 'tls',
+                    'sslverifypeer' => false,
+                ])
                 ->send();
 
             $response = $client->getResponse();
