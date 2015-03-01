@@ -64,7 +64,7 @@ class UserCard extends AbstractService
             $iErrorNumber = $aStatus['error']['error_number'];
             $sErrorDescription = $aStatus['error']['error_description'];
         
-            throw new \Exception('Error number: ' . $iErrorNumber. ', Error description: ' . $sErrorDescription);
+            throw new \Exception('Error number: ' . $iErrorNumber. ', Error description: ' . $sErrorDescription, $iErrorNumber);
             return false;
         }
     }
