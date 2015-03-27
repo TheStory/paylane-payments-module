@@ -58,51 +58,52 @@ class Payments extends AbstractService //implements PaymentsInterface
 	    
 		if ($oPayLaneRestClient->isSuccess()) {
 		    $em = $this->getEntityManager();
-		    
-		    //Save payment into "payments" table.
-		    $oPaymentsEntity = new PaymentsEntity();
-		    
-		    $oDate = new \DateTime();
-		    $oPaymentsEntity->setUserId($iUserId)
-                ->setSaleId($aStatus['id_sale'])
-		        ->setDateTime($oDate);
-		     
-		    $em->persist($oPaymentsEntity);
-		    $em->flush($oPaymentsEntity);
-			
-		    //Get card info
-		    $aParam = array('id_sale' => $aStatus['id_sale']);
-		    try {
-		        $oReport = $this->getServiceLocator()->get('payments.reporter');
-		        $aRes = $oReport->getSaleInfo($aParam);
-		        
-		    } catch (\Exception $e) {
-		        throw new \Exception($e->getMessage());
-		    }		    
-		    
-		    if($bIsNew == true) {
-		        //Save new card data
-		        $oUserCardEntity = new UserCard();
-		        $oUserCardEntity->setCreatedOn($oDate);
-		    }
-		    else {
-		        //Update card data
-		        $oUserCardEntity = $this->getServiceLocator()->get('repo.user_card')->getUserCard($iUserId);
-		        $oUserCardEntity->setUpdatedOn($oDate);
-		    }
-		    
-            $oUserCardEntity->setUserId($iUserId)
-                ->setCardNumber(substr($aRes['card']['number'], -4))
-                ->setCardType($aRes['payment_method'])
-                ->setNameOnCard($aRes['card']['name'])
-                ->setLastSaleId($aStatus['id_sale'])
-                ->setAuthorizationId(null)
-            ;
-            
-            if($bIsNew == true) {
-                $em->persist($oUserCardEntity);
+
+            if ($this->willStorePayments()) {
+
+                //Save payment into "payments" table.
+                $oPaymentsEntity = new PaymentsEntity();
+
+                $oDate = new \DateTime();
+                $oPaymentsEntity->setUserId($iUserId)
+                    ->setSaleId($aStatus['id_sale'])
+                    ->setDateTime($oDate);
+
+                $em->persist($oPaymentsEntity);
+                $em->flush($oPaymentsEntity);
+
+                //Get card info
+                $aParam = array('id_sale' => $aStatus['id_sale']);
+                try {
+                    $oReport = $this->getServiceLocator()->get('payments.reporter');
+                    $aRes = $oReport->getSaleInfo($aParam);
+
+                } catch (\Exception $e) {
+                    throw new \Exception($e->getMessage());
+                }
+
+                if ($bIsNew == true) {
+                    //Save new card data
+                    $oUserCardEntity = new UserCard();
+                    $oUserCardEntity->setCreatedOn($oDate);
+                } else {
+                    //Update card data
+                    $oUserCardEntity = $this->getServiceLocator()->get('repo.user_card')->getUserCard($iUserId);
+                    $oUserCardEntity->setUpdatedOn($oDate);
+                }
+
+                $oUserCardEntity->setUserId($iUserId)
+                    ->setCardNumber(substr($aRes['card']['number'], -4))
+                    ->setCardType($aRes['payment_method'])
+                    ->setNameOnCard($aRes['card']['name'])
+                    ->setLastSaleId($aStatus['id_sale'])
+                    ->setAuthorizationId(null);
+
+                if ($bIsNew == true) {
+                    $em->persist($oUserCardEntity);
+                }
+                $em->flush($oUserCardEntity);
             }
-            $em->flush($oUserCardEntity);
             
 			return $aStatus;
 		} else {
@@ -123,7 +124,11 @@ class Payments extends AbstractService //implements PaymentsInterface
 	 * @return Array|boolean
 	*/
 	public function refund($aParams, $iUserId) {
-	    
+
+        if ($this->willStorePayments()) {
+            throw new \Exception('Payments storage option disabled.');
+        }
+
 	    $oPayLaneRestClient = $this->getPayLaneRestClient();
 	    //Try transaction
 	    try {
@@ -176,6 +181,11 @@ class Payments extends AbstractService //implements PaymentsInterface
 	 * @return Array
 	*/
 	public function resale(UserCard $card, $aParams) {
+
+        if ($this->willStorePayments()) {
+            throw new \Exception('Payments storage option disabled.');
+        }
+
 	    if($card->getLastSaleId() == null) {
 	        try {
 	            $aParams['id_authorization'] = $card->getAuthorizationId();
@@ -229,6 +239,11 @@ class Payments extends AbstractService //implements PaymentsInterface
 	 * @return Array|boolean
 	*/
 	private function resaleBySale($aResaleParams) {
+
+        if ($this->willStorePayments()) {
+            throw new \Exception('Payments storage option disabled.');
+        }
+
         $oPayLaneRestClient = $this->getPayLaneRestClient();
 	    //Try transaction
         try {
@@ -268,6 +283,11 @@ class Payments extends AbstractService //implements PaymentsInterface
 	 * @return Array|boolean
 	 */
 	private function resaleByAuthorization($aResaleParams) {
+
+        if ($this->willStorePayments()) {
+            throw new \Exception('Payments storage option disabled.');
+        }
+
 	    $oPayLaneRestClient = $this->getPayLaneRestClient();
 	    
 	    try {
@@ -296,5 +316,15 @@ class Payments extends AbstractService //implements PaymentsInterface
 	        throw new \Exception('Error number: ' . $iErrorNumber. ', Error description: ' . $sErrorDescription, $iErrorNumber);
 	        return false;
 	    }
-	}	
+	}
+
+    /**
+     * @return mixed
+     */
+    private function willStorePayments()
+    {
+        $config = $this->getServiceLocator()->get('config');
+        $storePayments = $config['store_payments'];
+        return $storePayments;
+    }
 }

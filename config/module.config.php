@@ -43,4 +43,5 @@ return array(
         'login' => 'thestorytest',
         'password' => 'dro8lu7w'
     ),
+    'store_payments' => true,
 );
