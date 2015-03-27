@@ -1,6 +1,13 @@
 API
 ===
 
+Configuration
+-------------
+
+    return [
+        'store_payments' => true, // enable/disable storage of payments info in db
+    ];
+
 Services
 --------
 
