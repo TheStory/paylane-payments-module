@@ -36,7 +36,7 @@ class Taxes extends AbstractService
             // API request for all countries data
 
             $client = new Client();
-            $client->setUri('https://euvatrates.com/rates.json')
+            $client->setUri('http://euvatrates.com/rates.json')
                 ->setOptions([
                     'ssltransport' => 'tls',
                     'sslverifypeer' => false,
